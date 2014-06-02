@@ -102,7 +102,8 @@ class Command(BaseCommand):
     IMG_TYPE_PARAMS = {
         'JPEG': dict(quality=95)
     }
-    
+
+    @PrettyError("Failed to get_queryset: %(error)s")
     def get_queryset(self, model, query_str):
         """
         Gets the query set from the provided model based on the user's filters.
@@ -119,6 +120,7 @@ class Command(BaseCommand):
         query_str = 'model.objects.' + query_str.lstrip('.')
         return eval(query_str, dict(model=model))
 
+    @PrettyError("Failed to resize_image: %(error)s")
     def resize_image(self, image, sizes, force):
         """
         Resizes an image to the provided set sizes.
@@ -169,7 +171,8 @@ class Command(BaseCommand):
                 
             else:
                 os.rename(tmp_path, size.path)
-            
+
+    @PrettyError("Failed to get_sizes: %(error)s")
     def get_sizes(self, cd_image, stretch):
         """
         Extracts sizes for an image.
@@ -199,7 +202,7 @@ class Command(BaseCommand):
                                    size.height) )
         return set(sizes)
 
-
+    @PrettyError("Failed to setup_logging: %(error)s")
     def setup_logging(self, options):
         """
         Sets up logging details.
@@ -214,7 +217,8 @@ class Command(BaseCommand):
             sh = logging.StreamHandler(sys.stdout)
             sh.formatter = formatter
             logging.root.addHandler( sh )
-    
+
+    @PrettyError("Failed to get_images: %(error)s")
     def get_images(self, apps, query_set, stretch):
         """
         Returns all original images and sizes for the given apps and query sets.
@@ -261,6 +265,7 @@ class Command(BaseCommand):
                     #self.resize_image(image, sizes, options['force'])
                     yield image, sizes
 
+    @PrettyError("Failed to wait_all: %(error)s")
     def wait_all(self, proc_list):
         """
         Wait for all child procs to finish.
@@ -274,6 +279,7 @@ class Command(BaseCommand):
                     return
                 raise
 
+    @PrettyError("Failed to wait_one: %(error)s")
     def wait_one(self, proc_list):
         """
         Waits for any process to finish.  If any child terminated
@@ -292,6 +298,7 @@ class Command(BaseCommand):
             self.wait_all(proc_list)
             raise OSError('Process %i died with %i' % (pid, code))
 
+    @PrettyError("Failed to resize_parallel: %(error)s")
     def resize_parallel(self, images, force, total_procs):
         """
         Resizes images in parallel.  
