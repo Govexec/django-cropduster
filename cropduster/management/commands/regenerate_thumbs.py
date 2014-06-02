@@ -260,8 +260,8 @@ class Command(BaseCommand):
                         logging.info("Processing image %s" % file_name)
                         try:
                             image = Image.open(file_name)
-                        except IOError:
-                            logging.warning('Could not open image %s' % file_name)
+                        except IOError as e:
+                            logging.warning('Could not open image {0}, {1}'.format(file_name, e))
                             continue
 
                         sizes = self.get_sizes(cd_image, stretch)
