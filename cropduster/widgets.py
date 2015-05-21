@@ -12,7 +12,10 @@ class AdminCropdusterWidget(HiddenInput):
             self.size_set = None
         self.template = template
         super(AdminCropdusterWidget, self).__init__(*args, **kwargs)
-        self.is_hidden = False
+
+    @property
+    def is_hidden(self):
+        return False
 
     def render(self, name, value, attrs=None):
         attrs.setdefault("class", "cropduster")
