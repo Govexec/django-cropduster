@@ -27,11 +27,13 @@ def get_ratio(request):
 class ImageForm(ModelForm):
     class Meta:
         model = CropDusterImage
+        fields = '__all__'
 
 
 class CropForm(ModelForm):
     class Meta:
         model = Crop
+        fields = '__all__'
         widgets = {
             "image": TextInput(),
         }
