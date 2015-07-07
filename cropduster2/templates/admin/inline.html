@@ -1,0 +1,81 @@
+
+
+<style type="text/css">
+.cropduster_thumbs img {
+	display: block;
+	float: left;
+	margin-right: 10px;
+}
+
+.cropduster_tools {
+	position:absolute;
+	top:0px;
+	right:0px;
+}
+
+.cropduster-tools .delete-handler {
+	float: right;
+	margin: 5px !important;
+	padding: 0 !important;
+}
+
+.predelete {
+	background: #f2e6e6;
+}
+
+</style>
+
+<script type="text/javascript">
+function cropduster_pop(id, size_set_id, image_id){
+
+
+	href = '{{ cropduster_url }}?pop=1&size_set=' + size_set_id + '&image_element_id=' + id;
+	if (django.jQuery("#cropduster_input_" + id + " input").val() != ''){
+		image_id = django.jQuery("#cropduster_input_" + id + " input").val();
+	}
+	
+	if (image_id){
+		href += '&image_id=' + image_id;
+	}
+
+	var win=window.open(href, id, 'height=650, width=960, resizable=yes, scrollbars=yes');
+
+	return false;
+}
+
+function toggle_delete(obj){
+	var container = django.jQuery(obj).parent().parent().parent().parent();
+	
+	
+	django.jQuery(container).toggleClass("predelete");
+	
+	// Swap the title and the value fields, that way the values can be swapped back if deletion is canceled
+	var tempValue = django.jQuery(container).find("input.cropduster").val();
+	var tempTitle = django.jQuery(container).find("input.cropduster").attr("title");
+
+	django.jQuery(container).find("input.cropduster").val(tempTitle);
+	django.jQuery(container).find("input.cropduster").attr("title", tempValue);
+
+	return false;
+}
+
+</script>
+
+<div class="tools cropduster_tools">
+	<a href="javascript://" onclick="toggle_delete(this);" class="icon delete-handler" title="Remove"><img src="{{ static_url }}admin/cropduster/img/cropduster_icon_upload_delete.png" width="10" height="10" alt="" /></a>
+
+</div>
+
+<p><a href="#" onclick="cropduster_pop('{{ attrs["id"] }}', {{ size_set.id }}{% if image %}, {{ image.id }}{% endif %});return false" class="cd_show"><img src="{{ static_url }}admin/cropduster/img/cropduster_icon_upload_select.png" alt="" /></a></p>
+
+	<div class="cropduster_thumbs">
+	{% if image %}
+		{% for size in image.size_set.get_unique_ratios(created=True) %}
+		<img src="{{ image.thumbnail_url(size.slug) }}" />
+		{% endfor %}
+	{% endif %}
+	</div>
+<div id="cropduster_input_{{ attrs["id"] }}">
+{{ input|safe }}
+
+</div>
