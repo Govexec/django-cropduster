@@ -185,8 +185,34 @@ class Crop(CachingMixin, models.Model):
                 for size in sizes:
                     self.image.rescale(cropped_image, size=size)
 
-    def clean(self):
+    def _clean_bounds(self):
+        try:
+            crop_x_edge = self.crop_x + self.crop_w
+            image_max_width = self.image.image.width
+            if crop_x_edge > image_max_width:
+                msg = (
+                    u"Crop measurements must not exceed bounds of orignal image."
+                    u" Crop offset x + Crop width = {}."
+                    u" Image width = {}."
 
+                ).format(crop_x_edge, image_max_width)
+                raise ValidationError(msg)
+
+            crop_y_edge = self.crop_y + self.crop_h
+            image_max_height = self.image.image.height
+            if crop_y_edge > image_max_height:
+                msg = (
+                    u"Crop measurements must not exceed bounds of orignal image."
+                    u" Crop offset y ({}) + Crop height ({}) = {}."
+                    u" Image height = {}."
+                ).format(self.crop_y, self.crop_h, crop_y_edge, image_max_height)
+                raise ValidationError(msg)
+        except ValidationError:
+            raise
+        except Exception as e:
+            raise ValidationError(u"Unable to validate crop dimensions: " + str(e))
+
+    def clean(self):
         if not hasattr(self, "crop_x") or not hasattr(self, "crop_y"):
             raise ValidationError("Missing crop values")
 
@@ -195,6 +221,8 @@ class Crop(CachingMixin, models.Model):
 
         if self.crop_w <= 0 or self.crop_h <= 0:
             raise ValidationError("Crop measurements must be greater than zero")
+
+        self._clean_bounds()
 
 
 class Image(CachingMixin, models.Model):
