@@ -125,6 +125,11 @@ class CropDusterImageFieldFile(ImageFieldFile):
                 thumb.image = self.related_object
                 thumb.save()
 
+    def thumbnail_url(self, size_name):
+        # "Imports"
+        Image = compat_rel_to(self.field.db_field)
+        return getattr(Image.get_file_for_size(self.image, size_name), 'url', '')
+
     if django.VERSION < (1, 6):
         # Fixes a pre-Django 1.6 bug (see the docstring of
         # BaseCropDusterImageFieldFile). We proxy attributes of the
