@@ -218,7 +218,8 @@ class Image(models.Model):
 
     image = CropDusterSimpleImageField(db_index=True,
         upload_to=generate_filename, db_column='path',
-        storage=image_storage, width_field='width', height_field='height')
+        storage=image_storage, width_field='width', height_field='height',
+        max_length=255)
 
     thumbs = ReverseForeignRelation(Thumb, field_name='image')
 
