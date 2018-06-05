@@ -5,7 +5,7 @@ from django.conf import settings
 from cropduster.models import Size
 from cropduster.models import AUTO_SIZE
 from os.path import exists
-from raven import Client
+from raven.contrib.django.raven_compat.models import client as raven_client
 import sys
 
 CROPDUSTER_CROP_ONLOAD = getattr(settings, "CROPDUSTER_CROP_ONLOAD", True)
@@ -23,11 +23,11 @@ def get_image(image, size_name=None, template_name="image.html", retina=False, *
 	""" Templatetag to get the HTML for an image from a cropduster image object """
 
 	if image:
-		
+
 		if CROPDUSTER_CROP_ONLOAD:
 		# If set, will check for thumbnail existence
 		# if not there, will create the thumb based on predefiend crop/size settings
-		
+
 			thumb_path = image.thumbnail_path(size_name)
 			if not exists(thumb_path) and exists(image.image.path):
 				try:
@@ -37,43 +37,42 @@ def get_image(image, size_name=None, template_name="image.html", retina=False, *
 				try:
 					image.create_thumbnail(size, force_crop=True)
 				except:
-					client = Client(dsn=settings.RAVEN_CONFIG['dsn'])
-				        client.captureException(exc_info=sys.exc_info())			
+					raven_client.captureException(exc_info=sys.exc_info())
 					return ""
-		
-		if retina:	
+
+		if retina:
 			image_url = image.retina_thumbnail_url(size_name)
 		else:
 			image_url = image.thumbnail_url(size_name)
-			
-		
+
+
 		if not image_url:
 			return ""
-			
+
 		try:
 			image_size = IMAGE_SIZE_MAP[(image.size_set_id, size_name)]
 		except KeyError:
 			return ""
-	
+
 		# Set all the args that get passed to the template
-		
+
 		kwargs["image_url"] = image_url
 
 		if hasattr(image_size, "auto_size") and image_size.auto_size != AUTO_SIZE:
 			kwargs["width"] = image_size.width if hasattr(image_size, "width") else ""
 			kwargs["height"] = image_size.height if hasattr(image_size, "height") else ""
-		
-		
+
+
 		if CROPDUSTER_PLACEHOLDER_MODE:
 			kwargs["image_url"] = "http://placehold.it/%sx%s" % (kwargs["width"], kwargs["height"])
-		
+
 		kwargs["size_name"] = size_name
-		
+
 		kwargs["attribution"] = image.attribution
-		
-		if hasattr(image, "caption"): kwargs["alt"] = image.caption 
-		
-		if "title" not in kwargs: kwargs["title"] = kwargs["alt"] 
+
+		if hasattr(image, "caption"): kwargs["alt"] = image.caption
+
+		if "title" not in kwargs: kwargs["title"] = kwargs["alt"]
 
 		tmpl = get_template("templatetags/" + template_name)
 		context = template.Context(kwargs)
@@ -81,6 +80,6 @@ def get_image(image, size_name=None, template_name="image.html", retina=False, *
 	else:
 		return ""
 
-	
-		
-		
+
+
+
