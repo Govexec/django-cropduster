@@ -15,6 +15,13 @@ class AdminCropdusterWidget(HiddenInput):
         super(AdminCropdusterWidget, self).__init__(*args, **kwargs)
         self.is_hidden = False
 
+    def get_thumbnail_urls(self, image):
+        urls = []
+        if image:
+            for size in image.size_set.get_unique_ratios():
+                urls.append(image.thumbnail_url(size.slug))
+        return urls
+
     def render(self, name, value, attrs=None):
         attrs.setdefault("class", "cropduster")
 
@@ -37,5 +44,6 @@ class AdminCropdusterWidget(HiddenInput):
             "cropduster_url": cropduster_url,
             "input": input,
             "attrs": attrs,
+            "thumbnail_urls": self.get_thumbnail_urls(image),
         })
         return template.render(context)
