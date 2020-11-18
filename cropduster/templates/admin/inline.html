@@ -33,7 +33,7 @@ function cropduster_pop(id, size_set_id, image_id){
 	if (django.jQuery("#cropduster_input_" + id + " input").val() != ''){
 		image_id = django.jQuery("#cropduster_input_" + id + " input").val();
 	}
-	
+
 	if (image_id){
 		href += '&image_id=' + image_id;
 	}
@@ -45,10 +45,10 @@ function cropduster_pop(id, size_set_id, image_id){
 
 function toggle_delete(obj){
 	var container = django.jQuery(obj).parent().parent().parent().parent();
-	
-	
+
+
 	django.jQuery(container).toggleClass("predelete");
-	
+
 	// Swap the title and the value fields, that way the values can be swapped back if deletion is canceled
 	var tempValue = django.jQuery(container).find("input.cropduster").val();
 	var tempTitle = django.jQuery(container).find("input.cropduster").attr("title");
@@ -66,16 +66,16 @@ function toggle_delete(obj){
 
 </div>
 
-<p><a href="#" onclick="cropduster_pop('{{ attrs["id"] }}', {{ size_set.id }}{% if image %}, {{ image.id }}{% endif %});return false" class="cd_show"><img src="{{ static_url }}admin/cropduster/img/cropduster_icon_upload_select.png" alt="" /></a></p>
+<p><a href="#" onclick="cropduster_pop('{{ attrs.id }}', {{ size_set.id }}{% if image %}, {{ image.id }}{% endif %});return false" class="cd_show"><img src="{{ static_url }}admin/cropduster/img/cropduster_icon_upload_select.png" alt="" /></a></p>
 
 	<div class="cropduster_thumbs">
-	{% if image %}
-		{% for size in image.size_set.get_unique_ratios(created=True) %}
-		<img src="{{ image.thumbnail_url(size.slug) }}" />
+	{% if thumbnail_urls %}
+		{% for thumbnail_url in thumbnail_urls %}
+		<img src="{{ thumbnail_url }}" />
 		{% endfor %}
 	{% endif %}
 	</div>
-<div id="cropduster_input_{{ attrs["id"] }}">
+<div id="cropduster_input_{{ attrs.id }}">
 {{ input|safe }}
 
 </div>
